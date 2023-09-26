@@ -21,13 +21,22 @@ LEFT_IN = pygame.USEREVENT+1
 RIGHT_IN = pygame.USEREVENT+2
 
 
-def draw(left, right, bullets):
+def draw(left, right, bullets, left_lives, right_lives):
     WIN.fill(BLACK)
     pygame.draw.rect(WIN, WHITE, BORDER)
     pygame.draw.rect(WIN, WHITE, left)
     pygame.draw.rect(WIN, WHITE, right)
     for bullet in bullets:
         pygame.draw.rect(WIN, WHITE, bullet)
+
+    left_health = HEALTH_FONT.render("HEALTH: "+str(left_lives), 1, WHITE)
+    right_health = HEALTH_FONT.render(
+        "HEALTH: "+str(right_lives), 1, WHITE)
+
+    WIN.blit(right_health, ((WIDTH-right_health.get_width()-10), 10))
+
+    WIN.blit(left_health, (10, 10))
+
     pygame.display.update()
 
 
@@ -107,6 +116,14 @@ def handle_bullet(bullets, left_rect, right_rect, bullet_angle):
     return bullet_angle
 
 
+def draw_winner(winner_text):
+    draw_text = WINNER_FONT.render(winner_text, 1, WHITE)
+    WIN.blit(draw_text, ((WIDTH//2)-(draw_text.get_width()//2),
+             HEIGHT/2 - draw_text.get_height()//2))
+    pygame.display.update()
+    pygame.time.delay(5000)
+
+
 def main():
 
     run = True
@@ -141,8 +158,16 @@ def main():
         bullet_angle = handle_bullet(
             bullets, left_rect, right_rect, bullet_angle)
         ai_mouv(right_rect, bullets)
+        if right_lives <= 0:
+            winner_text = "AI win"
+        if left_lives <= 0:
+            winner_text = "YOU win"
+
+        if winner_text != "":
+            draw_winner(winner_text)
+            break
         handle_mouv(left_rect, keys_pressed)
-        draw(left_rect, right_rect, bullets)
+        draw(left_rect, right_rect, bullets, left_lives, right_lives)
 
 
 if __name__ == "__main__":
